@@ -14,6 +14,7 @@ OWNER_IDS = []
 COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
 IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument)
 
+
 class Ready(object):
     def __init__(self):
         for cog in COGS:
@@ -25,6 +26,8 @@ class Ready(object):
 
     def all_ready(self):
         return all([getattr(self, cog) for cog in COGS])
+
+
 class Bot(BotBase):
     def __init__(self):
         self.PREFIX = PREFIX
@@ -60,18 +63,15 @@ class Bot(BotBase):
         print("Running Bot....")
         super().run(self.TOKEN, reconnect=True)
 
-
     async def print_message(self):
 
         await self.stdout.send("Remember to Read the Rules!")
-
 
     async def on_connect(self):
         print("Bot Connected")
 
     async def on_disconnect(self):
         print("Bot Disconnected")
-
 
     async def on_error(self, err, *args, **kwargs):
         if err == "on_command_error":
@@ -80,23 +80,8 @@ class Bot(BotBase):
         await self.stdout.send("An error occured.")
         raise
 
-
-
-
-
-
-
-
-
-
-
-
     async def on_command_error(self, ctx, exc):
-        if any ([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
-
-
-
-
+        if any([isinstance(exc, error) for error in IGNORE_EXCEPTIONS]):
 
             pass
 
@@ -123,24 +108,8 @@ class Bot(BotBase):
             self.scheduler.start()
             self.stdout = self.get_channel(727213049974489212)
 
-
-
-
-
-            #embed = Embed(title="Now online!", description="Ares is now online.",timestamp=datetime.utcnow(), color=0xFF0000)
-            #fields = [("Name", "Values", True),
-                     # ("Another field", "This field is next to the other one", True),
-                     # ("A non-inline field", "This field will appear on it's own row", False)]
-            #for name, value, inline in fields:
-               # embed.add_field(name=name, value=value, inline=inline)
-               # embed.set_footer(text="This is a footer!")
-            #await channel.send(embed=embed)
             while not self.cogs_ready.all_ready():
                 await sleep(0.5)
-
-
-
-
 
             self.ready = True
             print("Bot Ready")
@@ -152,8 +121,6 @@ class Bot(BotBase):
 
         else:
             print("Bot Reconnected")
-
-
 
     async def on_message(self, message):
         if not message.author.bot:

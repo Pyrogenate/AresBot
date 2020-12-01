@@ -11,30 +11,30 @@ class Fun(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name='hi')
+    @command(name='hi', brief='Says Hi , Hiya, Heya, Hey, Or Hello to You o.0')
     @cooldown(1, 2, BucketType.user)
     async def say_hi(self, ctx):
         await ctx.send(f"{choice(('Hello', 'Hi', 'Heya', 'Hiya', 'Hey'))} {ctx.author.mention}!")
 
-    @command(name="dice", aliases=["roll"])
+    @command(name="dice", aliases=["roll"], brief='Rolls an imaginary dice :o')
     @cooldown(1, 2, BucketType.user)
     async def roll_dice(self, ctx):
         dicelist = ['1', '2', '3', '4', '5', '6']
         await ctx.send(f"You rolled a {choice(dicelist)}!")
 
-    @command(name='bonk')
+    @command(name='bonk', brief='Violently bonks the other user')
     @cooldown(1, 2, BucketType.user)
     async def slap_person(self, ctx, member: Member, *, reason: Optional[str] = " No Reason"):
         await ctx.send(f"{ctx.author.display_name} bonked {member.mention} for {reason}!")
 
-    @command(name='echo', aliases=['say'])
+    @command(name='echo', aliases=['say'], brief='Ares says what you tell it to!')
     async def echo_message(self, ctx, *, message):
         await ctx.send(message)
 
-    @command(name="fact")
+    @command(name="fact", brief='Gives you a random animal fact according to the animal you specify. Also shows an image')
     @cooldown(1, 2, BucketType.user)
     async def animal_fact(self, ctx, animal: str):
-        if animal in ("Dog", "Cat", "Panda", "Fox", "Koala","dog", "cat", "panda", "fox", "koala" ):
+        if animal in ("Dog", "Cat", "Panda", "Fox", "Koala", "dog", "cat", "panda", "fox", "koala"):
             fact_url = f"https://some-random-api.ml/facts/{animal}"
             image_url = f"https://some-random-api.ml/img/{animal}"
             async with request("GET", image_url) as response:
@@ -54,12 +54,8 @@ class Fun(Cog):
                                   description=data["fact"],
                                   color=ctx.author.color)
 
-
                     if image is not None:
                         embed.set_image(url=image)
-
-
-
 
                     await ctx.send(embed=embed)
 
@@ -69,12 +65,10 @@ class Fun(Cog):
         else:
             await ctx.send("No facts are available for this animal :(")
 
-
-    @command()
+    @command(brief='Shows you only the best quality memes the world has to offer')
     @cooldown(1, 2, BucketType.user)
     async def meme(self, ctx):
         meme_url = "https://some-random-api.ml/meme"
-
 
         async with request("GET", meme_url) as response:
             if response.status == 200:
@@ -89,12 +83,6 @@ class Fun(Cog):
                     embed.set_image(url=meme)
 
                 await ctx.send(embed=embed)
-
-
-
-
-
-
 
     @Cog.listener()
     async def on_ready(self):
