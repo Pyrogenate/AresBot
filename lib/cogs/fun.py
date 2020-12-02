@@ -5,6 +5,9 @@ from discord import Embed
 from random import choice
 from aiohttp import request
 from discord.ext.commands import command, cooldown, BucketType
+import praw
+import random
+from asyncio import sleep
 
 
 class Fun(Cog):
@@ -31,7 +34,8 @@ class Fun(Cog):
     async def echo_message(self, ctx, *, message):
         await ctx.send(message)
 
-    @command(name="fact", brief='Gives you a random animal fact according to the animal you specify. Also shows an image')
+    @command(name="fact",
+             brief='Gives you a random animal fact according to the animal you specify. Also shows an image')
     @cooldown(1, 2, BucketType.user)
     async def animal_fact(self, ctx, animal: str):
         if animal in ("Dog", "Cat", "Panda", "Fox", "Koala", "dog", "cat", "panda", "fox", "koala"):
@@ -65,9 +69,9 @@ class Fun(Cog):
         else:
             await ctx.send("No facts are available for this animal :(")
 
-    @command(brief='Shows you only the best quality memes the world has to offer')
+    @command(name='meme', brief='Posts a random meme')
     @cooldown(1, 2, BucketType.user)
-    async def meme(self, ctx):
+    async def gordon(self, ctx):
         meme_url = "https://some-random-api.ml/meme"
 
         async with request("GET", meme_url) as response:
@@ -83,6 +87,60 @@ class Fun(Cog):
                     embed.set_image(url=meme)
 
                 await ctx.send(embed=embed)
+
+    @command(name='8ball', brief='Ask the almighty 8ball a question and it shall answer')
+    async def _8ball(self, ctx, *, question):
+        responses = ["It is certain.",
+                     "It is decidedly so.",
+                     "Without a doubt.",
+                     "Yes - definitely.",
+                     "You may rely on it.",
+                     "As I see it, yes.",
+                     "Most likely.",
+                     "Outlook good.",
+                     "Yes.",
+                     "Signs point to yes.",
+                     "Reply hazy, try again.",
+                     "Ask again later.",
+                     "Better not tell you now.",
+                     "Cannot predict now.",
+                     "Concentrate and ask again.",
+                     "Don't count on it.",
+                     "My reply is no.",
+                     "My sources say no.",
+                     "Outlook not so good.",
+                     "Very doubtful."]
+
+        embed = Embed(title="8ball", description="Ask The Almighty 8ball", color=ctx.author.color)
+        embed.add_field(name="Question", value=f'{question}')
+        embed.add_field(name=f"{ctx.author.display_name}, the answer to your question is ",
+                        value=f'{random.choice(responses)}')
+        embed.add_field(name="Made By", value="Pyrogenate")
+
+        await ctx.send(content=None, embed=embed)
+
+
+
+    @command(brief='Auto Posts Memes every 5 seconds')
+    async def automeme(self, ctx):
+        reddit = praw.Reddit(client_id='p668-DbYvlTe4w',
+                             client_secret='GGdtizGTGNBI6UwvcvbtACN_Rf0',
+                             user_agent='memer')
+        memes_submissions = reddit.subreddit('memes').hot()
+        post_to_pick = random.randint(1, 2000)
+        for i in range(0, post_to_pick):
+            await sleep(5)
+            submission = next(x for x in memes_submissions if not x.stickied)
+
+            embed = Embed(title=f"Here is a meme for you {ctx.author.display_name}!",
+                          color=ctx.author.color,
+                          description='By Pyrogenate#1206')
+
+
+            embed.set_image(url=submission.url)
+
+            await ctx.send(embed=embed)
+
 
     @Cog.listener()
     async def on_ready(self):

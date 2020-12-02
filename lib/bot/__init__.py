@@ -1,19 +1,24 @@
 from datetime import datetime
 from asyncio import sleep
 from glob import glob
+from discord.ext.commands import when_mentioned_or
 from discord.errors import HTTPException, Forbidden
 from discord import Intents
 from discord import Embed
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord.ext.commands import Bot as BotBase
 from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, CommandOnCooldown
+from discord.ext.commands import command, has_permissions
 from ..db import db
 
-PREFIX = "/"
 OWNER_IDS = []
 COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
 IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument)
 
+
+def get_prefix(bot , message):
+    prefix = db.field("SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    return when_mentioned_or(prefix)(bot, message)
 
 class Ready(object):
     def __init__(self):
@@ -30,7 +35,6 @@ class Ready(object):
 
 class Bot(BotBase):
     def __init__(self):
-        self.PREFIX = PREFIX
         self.ready = False
         self.guild = None
         self.scheduler = AsyncIOScheduler()
@@ -39,7 +43,7 @@ class Bot(BotBase):
         db.autosave(self.scheduler)
 
         super().__init__(
-            command_prefix=PREFIX,
+            command_prefix=get_prefix,
             owner_ids=OWNER_IDS,
             intents=Intents.all(),
         )
@@ -73,6 +77,7 @@ class Bot(BotBase):
     async def on_disconnect(self):
         print("Bot Disconnected")
 
+
     async def on_error(self, err, *args, **kwargs):
         if err == "on_command_error":
             await args[0].send("Something went Wrong :(")
@@ -96,8 +101,8 @@ class Bot(BotBase):
             if isinstance(exc.original, Forbidden):
                 await ctx.send("I do not have permission to do that.")
 
-            else:
-                raise exc
+
+
 
 
         else:
